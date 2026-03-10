@@ -54,6 +54,9 @@ function api_login(
         CURLOPT_POST           => true,
         CURLOPT_POSTFIELDS     => $body,
         CURLOPT_HTTPHEADER     => ['Content-Type: application/json'],
+        // In dev the system CA bundle may be absent; skip peer verification outside prod
+        CURLOPT_SSL_VERIFYPEER => (defined('APP_ENV') && APP_ENV === 'prod'),
+        CURLOPT_SSL_VERIFYHOST => (defined('APP_ENV') && APP_ENV === 'prod') ? 2 : 0,
     ]);
 
     $response    = curl_exec($ch);
@@ -134,6 +137,9 @@ function api_request(
             'Content-Type: application/json',
             'Accept: application/json',
         ],
+        // In dev the system CA bundle may be absent; skip peer verification outside prod
+        CURLOPT_SSL_VERIFYPEER => (defined('APP_ENV') && APP_ENV === 'prod'),
+        CURLOPT_SSL_VERIFYHOST => (defined('APP_ENV') && APP_ENV === 'prod') ? 2 : 0,
     ]);
 
     $response    = curl_exec($ch);
@@ -154,6 +160,12 @@ function api_request(
         $msg = "API returned HTTP {$http_status} for POST {$url}. Body: {$response}";
         log_event('ERROR', $msg);
         throw new RuntimeException($msg);
+    }
+
+    // An empty body is a valid "no data" response from some endpoints
+    if ($response === '' || $response === null) {
+        log_event('INFO', "API returned empty body from POST {$url} – treating as empty array");
+        return [];
     }
 
     $decoded = json_decode($response, true);

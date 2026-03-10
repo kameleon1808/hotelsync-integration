@@ -82,9 +82,13 @@ function generate_invoice_number(int $year, int $sequence): string
  */
 function slugify(string $string): string
 {
-    // Transliterate non-ASCII characters
-    $string = transliterator_transliterate('Any-Latin; Latin-ASCII; Lower()', $string)
-              ?? strtolower($string);
+    // Transliterate non-ASCII characters (requires intl extension; falls back to iconv or strip)
+    if (function_exists('transliterator_transliterate')) {
+        $string = transliterator_transliterate('Any-Latin; Latin-ASCII; Lower()', $string)
+                  ?? strtolower($string);
+    } elseif (function_exists('iconv')) {
+        $string = iconv('UTF-8', 'ASCII//TRANSLIT//IGNORE', $string) ?: $string;
+    }
 
     $string = strtolower($string);
     $string = preg_replace('/[^a-z0-9\s-]/', '', $string);   // Remove non-alphanumeric
@@ -102,5 +106,9 @@ function slugify(string $string): string
  */
 function hash_payload(array $data): string
 {
+    // JSON_SORT_KEYS (64) may be absent in some PHP builds; define it as a fallback
+    if (!defined('JSON_SORT_KEYS')) {
+        define('JSON_SORT_KEYS', 64);
+    }
     return hash('sha256', json_encode($data, JSON_UNESCAPED_UNICODE | JSON_SORT_KEYS));
 }
