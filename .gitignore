@@ -17,3 +17,6 @@ composer.lock
 .vscode/
 *.swp
 *.swo
+
+# Postman docs (local reference only)
+postman/

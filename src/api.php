@@ -3,55 +3,58 @@
 /**
  * src/api.php
  *
- * HotelSync API client.
- * All communication with the remote API goes through api_request().
+ * HotelSync (OTASync) API client.
+ *
+ * Authentication flow:
+ *   1. Call api_login() to POST /user/auth/login → returns session pkey + properties list
+ *   2. Pass the pkey as $key to api_request() for all subsequent calls
+ *
+ * Every request is HTTP POST with JSON body.
+ * No Authorization header is used.
+ *
+ * Endpoint pattern:
+ *   https://app.otasync.me/api/{resource}/{action}/{entity}
  */
 
 require_once __DIR__ . '/../config/config.php';
 require_once __DIR__ . '/logger.php';
 
 /**
- * Makes an HTTP request to the HotelSync API via cURL.
+ * Authenticates against the OTASync API and returns the session key (pkey)
+ * together with the list of accessible properties.
  *
- * @param string      $endpoint Relative endpoint path, e.g. "/rooms".
- * @param string      $method   HTTP method: GET | POST | PUT | PATCH | DELETE.
- * @param array|null  $payload  Request body data (will be JSON-encoded).
- * @param string|null $token    Bearer token; falls back to API_TOKEN from config.
+ * @param string|null $username  Override API_USERNAME (optional).
+ * @param string|null $password  Override API_PASSWORD (optional).
+ * @param string|null $token     Override API_TOKEN (optional).
  *
- * @throws RuntimeException On cURL error or non-2xx HTTP response.
- * @return array Decoded JSON response as an associative array.
+ * @throws RuntimeException On network error or failed login.
+ * @return array ['pkey' => string, 'properties' => array, 'user' => array]
  */
-function api_request(
-    string  $endpoint,
-    string  $method  = 'GET',
-    ?array  $payload = null,
-    ?string $token   = null
+function api_login(
+    ?string $username = null,
+    ?string $password = null,
+    ?string $token    = null
 ): array {
-    $token  = $token ?? API_TOKEN;
-    $url    = rtrim(API_BASE_URL, '/') . '/' . ltrim($endpoint, '/');
-    $method = strtoupper($method);
+    $url = rtrim(API_BASE_URL, '/') . '/user/auth/login';
 
-    log_event('INFO', "API {$method} {$url}");
+    $body = json_encode([
+        'token'    => $token    ?? API_TOKEN,
+        'username' => $username ?? API_USERNAME,
+        'password' => $password ?? API_PASSWORD,
+        'remember' => 0,
+    ]);
+
+    log_event('INFO', 'API login attempt for user: ' . ($username ?? API_USERNAME));
 
     $ch = curl_init();
-
-    $headers = [
-        'Accept: application/json',
-        'Content-Type: application/json',
-        'Authorization: Bearer ' . $token,
-    ];
-
     curl_setopt_array($ch, [
         CURLOPT_URL            => $url,
         CURLOPT_RETURNTRANSFER => true,
-        CURLOPT_TIMEOUT        => 30,
-        CURLOPT_HTTPHEADER     => $headers,
-        CURLOPT_CUSTOMREQUEST  => $method,
+        CURLOPT_TIMEOUT        => 15,
+        CURLOPT_POST           => true,
+        CURLOPT_POSTFIELDS     => $body,
+        CURLOPT_HTTPHEADER     => ['Content-Type: application/json'],
     ]);
-
-    if ($payload !== null && in_array($method, ['POST', 'PUT', 'PATCH'], true)) {
-        curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($payload));
-    }
 
     $response    = curl_exec($ch);
     $http_status = curl_getinfo($ch, CURLINFO_HTTP_CODE);
@@ -59,18 +62,96 @@ function api_request(
     curl_close($ch);
 
     if ($curl_error) {
-        $msg = "API cURL error on {$method} {$url}: {$curl_error}";
+        $msg = 'API login cURL error: ' . $curl_error;
         log_event('ERROR', $msg);
         throw new RuntimeException($msg);
     }
 
-    log_event(
-        $http_status >= 200 && $http_status < 300 ? 'SUCCESS' : 'ERROR',
-        "API response HTTP {$http_status} from {$method} {$url}"
-    );
+    if ($http_status !== 200) {
+        $msg = "API login failed with HTTP {$http_status}. Body: {$response}";
+        log_event('ERROR', $msg);
+        throw new RuntimeException($msg);
+    }
+
+    $data = json_decode($response, true);
+
+    if (json_last_error() !== JSON_ERROR_NONE || empty($data['pkey'])) {
+        $msg = 'API login response invalid or missing pkey. Body: ' . substr($response, 0, 200);
+        log_event('ERROR', $msg);
+        throw new RuntimeException($msg);
+    }
+
+    log_event('SUCCESS', 'API login successful. Properties available: ' . count($data['properties'] ?? []));
+
+    return [
+        'pkey'       => $data['pkey'],
+        'properties' => $data['properties'] ?? [],
+        'user'       => $data,
+    ];
+}
+
+/**
+ * Makes an authenticated POST request to the HotelSync API via cURL.
+ *
+ * Credentials (token, key, id_properties) are automatically merged into
+ * every request payload from config constants unless overridden.
+ *
+ * @param string      $endpoint    Relative endpoint path, e.g. "/room/data/rooms".
+ * @param array       $payload     Additional body fields merged with auth credentials.
+ * @param string|null $key         Session pkey obtained from api_login().
+ * @param string|null $token       Override API_TOKEN (optional).
+ * @param int|null    $property_id Override API_PROPERTY_ID (optional).
+ *
+ * @throws RuntimeException On cURL error or non-2xx HTTP response.
+ * @return array Decoded JSON response as an associative array.
+ */
+function api_request(
+    string  $endpoint,
+    array   $payload      = [],
+    ?string $key          = null,
+    ?string $token        = null,
+    ?int    $property_id  = null
+): array {
+    $url = rtrim(API_BASE_URL, '/') . '/' . ltrim($endpoint, '/');
+
+    // Merge auth credentials into payload (caller fields take precedence)
+    $body = array_merge([
+        'token'         => $token       ?? API_TOKEN,
+        'key'           => $key         ?? '',
+        'id_properties' => $property_id ?? API_PROPERTY_ID,
+    ], $payload);
+
+    log_event('INFO', "API POST {$url}");
+
+    $ch = curl_init();
+    curl_setopt_array($ch, [
+        CURLOPT_URL            => $url,
+        CURLOPT_RETURNTRANSFER => true,
+        CURLOPT_TIMEOUT        => 30,
+        CURLOPT_POST           => true,
+        CURLOPT_POSTFIELDS     => json_encode($body),
+        CURLOPT_HTTPHEADER     => [
+            'Content-Type: application/json',
+            'Accept: application/json',
+        ],
+    ]);
+
+    $response    = curl_exec($ch);
+    $http_status = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+    $curl_error  = curl_error($ch);
+    curl_close($ch);
+
+    if ($curl_error) {
+        $msg = "API cURL error on POST {$url}: {$curl_error}";
+        log_event('ERROR', $msg);
+        throw new RuntimeException($msg);
+    }
+
+    $level = ($http_status >= 200 && $http_status < 300) ? 'SUCCESS' : 'ERROR';
+    log_event($level, "API response HTTP {$http_status} from POST {$url}");
 
     if ($http_status < 200 || $http_status >= 300) {
-        $msg = "API returned HTTP {$http_status} for {$method} {$url}. Body: {$response}";
+        $msg = "API returned HTTP {$http_status} for POST {$url}. Body: {$response}";
         log_event('ERROR', $msg);
         throw new RuntimeException($msg);
     }
@@ -78,7 +159,7 @@ function api_request(
     $decoded = json_decode($response, true);
 
     if (json_last_error() !== JSON_ERROR_NONE) {
-        $msg = "API response JSON decode error: " . json_last_error_msg();
+        $msg = 'API response JSON decode error: ' . json_last_error_msg();
         log_event('ERROR', $msg);
         throw new RuntimeException($msg);
     }
