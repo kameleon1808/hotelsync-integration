@@ -1,0 +1,19 @@
+# Application logs
+logs/*.log
+
+# Local configuration override (never commit real credentials)
+config/config.local.php
+
+# OS artifacts
+.DS_Store
+Thumbs.db
+
+# PHP/Composer
+vendor/
+composer.lock
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
