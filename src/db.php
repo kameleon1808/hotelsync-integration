@@ -18,7 +18,7 @@ require_once __DIR__ . '/logger.php';
  */
 function get_db_connection(): mysqli
 {
-    $conn = new mysqli(DB_HOST, DB_USER, DB_PASS, DB_NAME);
+    $conn = new mysqli(DB_HOST, DB_USER, DB_PASS, DB_NAME, DB_PORT);
 
     if ($conn->connect_error) {
         log_event('ERROR', 'Database connection failed: ' . $conn->connect_error);
