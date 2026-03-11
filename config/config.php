@@ -22,12 +22,15 @@ define('DB_CHARSET','utf8mb4');
 // API_USERNAME / API_PASSWORD – your OTASync account login credentials
 // API_PROPERTY_ID – id_properties for your property (from login response)
 // The session key (pkey) is obtained automatically via api_login().
+//
+// Fill in your own credentials before running any script.
+// Run: php scripts/test_connection.php  – to verify everything is configured correctly.
 
 define('API_BASE_URL',      'https://app.otasync.me/api');
-define('API_TOKEN',         '775580f2b13be0215b5aee08a17c7aa892ece321');
-define('API_USERNAME',      'marko00djokic@gmail.com');
-define('API_PASSWORD',      'T3$t00U$er100E2ooo@');
-define('API_PROPERTY_ID',   10586);    // id_properties integer from your OTASync account
+define('API_TOKEN',         'YOUR_API_TOKEN_HERE');
+define('API_USERNAME',      'YOUR_EMAIL_HERE');
+define('API_PASSWORD',      'YOUR_PASSWORD_HERE');
+define('API_PROPERTY_ID',   0);    // Set to the id_properties integer from your OTASync account (shown after first login)
 
 // ─── Application ─────────────────────────────────────────────────────────────
 

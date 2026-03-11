@@ -72,24 +72,12 @@ try {
     json_response(500, ['status' => 'error', 'message' => 'Database unavailable.']);
 }
 
-// ─── STEP 3 – Idempotency check ───────────────────────────────────────────────
-
-$idem_stmt = execute_query(
-    $conn,
-    'SELECT id FROM webhook_events WHERE payload_hash = ? LIMIT 1',
-    [$payload_hash],
-    's'
-);
-$existing_event = $idem_stmt->get_result()->fetch_assoc();
-$idem_stmt->close();
-
-if ($existing_event !== null) {
-    log_event('INFO', "webhook: Duplicate event received (hash={$payload_hash}) – skipping");
-    close_db_connection($conn);
-    json_response(200, ['status' => 'already_processed']);
-}
-
-// ─── STEP 4 – Save webhook event ─────────────────────────────────────────────
+// ─── STEP 3 + 4 – Atomic idempotency check and event save ────────────────────
+//
+// INSERT IGNORE relies on the UNIQUE KEY uq_webhook_hash (payload_hash) in the
+// schema.  If the hash already exists the INSERT is silently skipped and
+// affected_rows returns 0 – no separate SELECT query is needed and there is no
+// race window between the check and the insert.
 
 $event_type   = (string)($payload['event_type'] ?? 'unknown');
 $payload_json = json_encode($payload, JSON_UNESCAPED_UNICODE);
@@ -97,20 +85,28 @@ $payload_json = json_encode($payload, JSON_UNESCAPED_UNICODE);
 try {
     $insert_event_stmt = execute_query(
         $conn,
-        'INSERT INTO webhook_events (event_type, payload, payload_hash, processed)
+        'INSERT IGNORE INTO webhook_events (event_type, payload, payload_hash, processed)
          VALUES (?, ?, ?, 0)',
         [$event_type, $payload_json, $payload_hash],
         'sss'
     );
+    $affected         = $insert_event_stmt->affected_rows;
     $webhook_event_id = (int)$conn->insert_id;
     $insert_event_stmt->close();
-
-    log_event('INFO', "webhook: Event saved – id={$webhook_event_id} type={$event_type}");
 } catch (RuntimeException $e) {
     log_event('ERROR', 'webhook: Failed to save webhook event: ' . $e->getMessage());
     close_db_connection($conn);
     json_response(500, ['status' => 'error', 'message' => 'Failed to record event.']);
 }
+
+// affected_rows === 0 means the hash already existed – duplicate delivery
+if ($affected === 0) {
+    log_event('INFO', "webhook: Duplicate event received (hash={$payload_hash}) – skipping");
+    close_db_connection($conn);
+    json_response(200, ['status' => 'already_processed']);
+}
+
+log_event('INFO', "webhook: Event saved – id={$webhook_event_id} type={$event_type}");
 
 // ─── Helper functions ─────────────────────────────────────────────────────────
 

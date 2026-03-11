@@ -192,6 +192,12 @@ Generates an invoice for a local reservation, inserts it into `invoice_queue`,
 and simulates a send attempt with up to 5 retries.  Invoice numbers are
 race-condition-safe (`HS-INV-YYYY-000001` format).
 
+> **Note on pricing:** The HotelSync API does not expose per-night room rates in
+> the catalog or reservation endpoints.  The current implementation uses a
+> placeholder rate of **100.00 EUR per night** to produce non-zero line items.
+> In a production integration this value would be replaced by pricing data pulled
+> from a dedicated pricing endpoint, a local rate table, or the BridgeOne PMS.
+
 ```bash
 php scripts/generate_invoice.php --reservation_id=12345
 ```

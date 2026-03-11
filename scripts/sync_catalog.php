@@ -15,7 +15,7 @@
  *   - Rooms:      POST /room/data/rooms       – requires {"type":"list"} in body
  *                 Room ID field:  id_room_types
  *                 Response:       flat JSON array (no wrapper object)
- *   - Rate plans: POST /room/data/pricing_plans – returns empty array when none configured
+ *   - Rate plans: POST /pricingPlan/data/pricing_plans – returns empty array when none configured
  *                 Rate plan ID field: id_pricing_plans
  *
  * Usage:
