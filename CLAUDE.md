@@ -14,6 +14,11 @@ Built with PHP (procedural), MySQL, mysqli, cURL. No frameworks allowed.
 - Base URL: https://app.otasync.me/api
 - Docs: https://documenter.getpostman.com/view/41568417/2sAYX5MNgD
 - Test token: 775580f2b13be0215b5aee08a17c7aa892ece321
+- **Primary API reference: `postman/otasync-api.json`** – full exported Postman
+  collection containing every endpoint with confirmed request bodies and field
+  names. Always consult this file first when implementing new endpoints,
+  mapping API fields, or debugging unexpected responses. The online Postman
+  documenter is a JavaScript SPA and cannot be fetched programmatically.
 
 ## Project Structure
 hotelsync-integration/
