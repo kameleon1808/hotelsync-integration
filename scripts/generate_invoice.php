@@ -14,7 +14,7 @@
  *   php scripts/generate_invoice.php --reservation_id=XXXX
  *
  * The --reservation_id value is matched against both hs_reservation_id
- * (HotelSync ID) and the local auto-increment id.
+ * (OTASync ID) and the local auto-increment id.
  */
 
 require_once __DIR__ . '/../config/config.php';
@@ -35,7 +35,7 @@ function usage(): void
     echo 'Usage:  php scripts/generate_invoice.php --reservation_id=XXXX' . PHP_EOL;
     echo PHP_EOL;
     echo 'Options:' . PHP_EOL;
-    echo '  --reservation_id   HotelSync reservation ID or local DB id (numeric)' . PHP_EOL;
+    echo '  --reservation_id   OTASync reservation ID or local DB id (numeric)' . PHP_EOL;
     echo PHP_EOL;
     echo 'Example:' . PHP_EOL;
     echo '  php scripts/generate_invoice.php --reservation_id=606308' . PHP_EOL;
@@ -58,7 +58,7 @@ if (!ctype_digit((string)$reservation_id)) {
 
 // ─── Boot ─────────────────────────────────────────────────────────────────────
 
-echo PHP_EOL . '=== HotelSync Invoice Generation ===' . PHP_EOL;
+echo PHP_EOL . '=== BridgeOne Invoice Generation ===' . PHP_EOL;
 echo "Reservation ID: {$reservation_id}" . PHP_EOL . PHP_EOL;
 log_event('INFO', "generate_invoice: Starting for reservation_id={$reservation_id}");
 

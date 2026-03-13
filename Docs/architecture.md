@@ -9,11 +9,11 @@ hotel to manage bookings, billing, and operations locally.
 `https://app.otasync.me/api`.  It aggregates reservations from online travel
 agencies (OTAs) and exposes them via a JSON REST API.
 
-**HotelSync Integration** is the bridge between the two.  It is a stateless,
+**BridgeOne** integration service is the bridge between the two.  It is a stateless,
 script-based PHP service with no long-running daemon.  Each synchronisation
 task is a PHP CLI script invoked manually or by a cron job.  An inbound webhook
 endpoint (`public/webhooks/otasync.php`) handles real-time push events from
-the HotelSync platform.
+the OTASync platform.
 
 ---
 
@@ -21,7 +21,7 @@ the HotelSync platform.
 
 ```
 ┌──────────────────┐        HTTPS / cURL        ┌───────────────────────┐
-│   HotelSync API  │ ◄──────────────────────►   │  src/api.php          │
+│   OTASync API    │ ◄──────────────────────►   │  src/api.php          │
 │ (app.otasync.me) │                             │  (api_request)        │
 └──────────────────┘                             └───────────┬───────────┘
                                                              │
@@ -51,7 +51,7 @@ the HotelSync platform.
 
 Inbound webhooks:
 ┌──────────────────┐   HTTP POST    ┌───────────────────────────────────┐
-│  HotelSync API   │ ─────────────► │  public/webhooks/otasync.php      │
+│  OTASync API     │ ─────────────► │  public/webhooks/otasync.php      │
 └──────────────────┘                │  → webhook_events + handlers       │
                                     └───────────────────────────────────┘
 ```

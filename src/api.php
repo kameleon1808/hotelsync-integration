@@ -3,7 +3,7 @@
 /**
  * src/api.php
  *
- * HotelSync (OTASync) API client.
+ * OTASync API client (BridgeOne integration).
  *
  * Authentication flow:
  *   1. Call api_login() to POST /user/auth/login → returns session pkey + properties list
@@ -94,7 +94,7 @@ function api_login(
 }
 
 /**
- * Makes an authenticated POST request to the HotelSync API via cURL.
+ * Makes an authenticated POST request to the OTASync API via cURL.
  *
  * Credentials (token, key, id_properties) are automatically merged into
  * every request payload from config constants unless overridden.

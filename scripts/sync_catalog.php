@@ -5,7 +5,7 @@
  *
  * Phase 1 – Authentication & Catalog Sync.
  *
- * Authenticates against the HotelSync API, then fetches rooms and rate plans
+ * Authenticates against the OTASync API, then fetches rooms and rate plans
  * and upserts them into the local MySQL database.
  *
  * Change detection is performed by SHA-256 hashing the raw API payload.
@@ -30,7 +30,7 @@ require_once __DIR__ . '/../src/helpers.php';
 
 // ─── STEP 1 – Authentication ──────────────────────────────────────────────────
 
-echo PHP_EOL . '=== HotelSync Catalog Sync ===' . PHP_EOL;
+echo PHP_EOL . '=== BridgeOne Catalog Sync ===' . PHP_EOL;
 log_event('INFO', 'sync_catalog: Starting catalog sync');
 
 try {

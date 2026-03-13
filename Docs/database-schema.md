@@ -11,13 +11,13 @@ and `InnoDB` engine (supports foreign keys and transactions).
 
 ### `rooms`
 
-Stores room/unit records synced from the HotelSync catalog.
+Stores room/unit records synced from the OTASync catalog.
 
 | Column        | Type            | Description                                   |
 |---------------|-----------------|-----------------------------------------------|
 | `id`          | INT UNSIGNED PK | Auto-increment internal ID                    |
 | `external_id` | VARCHAR(100)    | Generated ID in format `HS-{id}-{slug}` (unique) |
-| `hs_room_id`  | VARCHAR(100)    | Room ID as returned by HotelSync API (unique) |
+| `hs_room_id`  | VARCHAR(100)    | Room ID as returned by OTASync API (unique) |
 | `name`        | VARCHAR(255)    | Human-readable room name                      |
 | `slug`        | VARCHAR(255)    | URL-safe lowercase version of name            |
 | `raw_data`    | JSON            | Full API response payload for reference       |
@@ -28,13 +28,13 @@ Stores room/unit records synced from the HotelSync catalog.
 
 ### `rate_plans`
 
-Stores pricing / rate plan records from the HotelSync catalog.
+Stores pricing / rate plan records from the OTASync catalog.
 
 | Column            | Type            | Description                                     |
 |-------------------|-----------------|-------------------------------------------------|
 | `id`              | INT UNSIGNED PK | Auto-increment internal ID                      |
 | `external_id`     | VARCHAR(100)    | Generated ID in format `RP-{id}-{meal_plan}`    |
-| `hs_rate_plan_id` | VARCHAR(100)    | Rate plan ID from HotelSync API (unique)        |
+| `hs_rate_plan_id` | VARCHAR(100)    | Rate plan ID from OTASync API (unique)        |
 | `name`            | VARCHAR(255)    | Rate plan display name                          |
 | `meal_plan`       | VARCHAR(50)     | Meal plan code: BB, HB, FB, AI, RO              |
 | `raw_data`        | JSON            | Full API response payload                       |

@@ -1,7 +1,7 @@
-# HotelSync Integration
+# BridgeOne
 
 A lightweight PHP integration service that synchronises rooms, rate plans, and
-reservations between the **HotelSync API** (OTASync) and the local **BridgeOne**
+reservations between the **OTASync API** and the local **BridgeOne**
 property-management system.
 
 All six phases are implemented and tested:
@@ -36,8 +36,8 @@ All six phases are implemented and tested:
 ### 1. Clone the repository
 
 ```bash
-git clone <your-repo-url> hotelsync-integration
-cd hotelsync-integration
+git clone <your-repo-url> BridgeOne
+cd BridgeOne
 ```
 
 ### 2. Configure the application
@@ -192,7 +192,7 @@ Generates an invoice for a local reservation, inserts it into `invoice_queue`,
 and simulates a send attempt with up to 5 retries.  Invoice numbers are
 race-condition-safe (`HS-INV-YYYY-000001` format).
 
-> **Note on pricing:** The HotelSync API does not expose per-night room rates in
+> **Note on pricing:** The OTASync API does not expose per-night room rates in
 > the catalog or reservation endpoints.  The current implementation uses a
 > placeholder rate of **100.00 EUR per night** to produce non-zero line items.
 > In a production integration this value would be replaced by pricing data pulled
@@ -203,12 +203,12 @@ php scripts/generate_invoice.php --reservation_id=12345
 ```
 
 The `--reservation_id` value is matched against both `hs_reservation_id`
-(HotelSync ID) and the local auto-increment `id`.
+(OTASync ID) and the local auto-increment `id`.
 
 **Expected output:**
 
 ```
-=== HotelSync Invoice Generation ===
+=== BridgeOne Invoice Generation ===
 Reservation ID: 12345
 
 Reservation found: id=3, hs_id=12345, status=confirmed
@@ -286,7 +286,7 @@ events to `https://your-domain.com/webhooks/otasync.php`.
 
 ```
 ┌──────────────────┐   HTTPS/cURL   ┌─────────────────────────────┐
-│  HotelSync API   │ ◄───────────► │  src/api.php (api_request)   │
+│  OTASync API     │ ◄───────────► │  src/api.php (api_request)   │
 │ (app.otasync.me) │               └──────────────┬──────────────┘
 └──────────────────┘                              │
                                         JSON response
@@ -313,7 +313,7 @@ events to `https://your-domain.com/webhooks/otasync.php`.
 
 Inbound webhooks:
 ┌──────────────────┐  HTTP POST  ┌──────────────────────────────────┐
-│  HotelSync API   │ ──────────► │  public/webhooks/otasync.php     │
+│  OTASync API     │ ──────────► │  public/webhooks/otasync.php     │
 └──────────────────┘             │  → webhook_events + handlers      │
                                  └──────────────────────────────────┘
 ```

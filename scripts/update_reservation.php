@@ -5,7 +5,7 @@
  *
  * Phase 3 – Reservation Update and Cancellation.
  *
- * Fetches a single reservation from the HotelSync API by ID, compares it with
+ * Fetches a single reservation from the OTASync API by ID, compares it with
  * the locally stored record, and applies any changes.  Cancellations are
  * handled as soft-deletes (status field updated, record kept in DB).
  * Every change is recorded in the audit_log table.
@@ -40,7 +40,7 @@ function usage(): void
     echo 'Usage:  php scripts/update_reservation.php --reservation_id=XXXX' . PHP_EOL;
     echo PHP_EOL;
     echo 'Options:' . PHP_EOL;
-    echo '  --reservation_id   HotelSync reservation ID (numeric)' . PHP_EOL;
+    echo '  --reservation_id   OTASync reservation ID (numeric)' . PHP_EOL;
     echo PHP_EOL;
     echo 'Example:' . PHP_EOL;
     echo '  php scripts/update_reservation.php --reservation_id=606308' . PHP_EOL;
@@ -65,7 +65,7 @@ $reservation_id = (string)$reservation_id;
 
 // ─── Boot ──────────────────────────────────────────────────────────────────
 
-echo PHP_EOL . '=== HotelSync Reservation Update ===' . PHP_EOL;
+echo PHP_EOL . '=== BridgeOne Reservation Update ===' . PHP_EOL;
 echo "Reservation ID: {$reservation_id}" . PHP_EOL . PHP_EOL;
 log_event('INFO', "update_reservation: Starting update for hs_reservation_id={$reservation_id}");
 
@@ -83,13 +83,13 @@ try {
 }
 
 /**
- * Fetches a single reservation from the HotelSync API by its ID.
+ * Fetches a single reservation from the OTASync API by its ID.
  *
  * Returns null when the API signals the reservation does not exist
  * (empty response, missing id_reservations key, or is_deleted = 1 with
  * no status information).
  *
- * @param string $hs_id      HotelSync reservation ID.
+ * @param string $hs_id      OTASync reservation ID.
  * @param string $pkey       Session key from api_login().
  * @return array|null  Decoded reservation object, or null if not found.
  */
@@ -139,8 +139,8 @@ try {
 }
 
 if ($api_res === null) {
-    echo "[ERROR] Reservation {$reservation_id} not found in HotelSync." . PHP_EOL;
-    log_event('ERROR', "update_reservation: Reservation not found in HotelSync – hs_reservation_id={$reservation_id}");
+    echo "[ERROR] Reservation {$reservation_id} not found in OTASync." . PHP_EOL;
+    log_event('ERROR', "update_reservation: Reservation not found in OTASync – hs_reservation_id={$reservation_id}");
     exit(1);
 }
 

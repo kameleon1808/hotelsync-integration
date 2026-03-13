@@ -1,5 +1,5 @@
 -- =============================================================================
--- HotelSync Integration – Database Schema
+-- BridgeOne – Database Schema
 -- Engine: MySQL 5.7+ / MariaDB 10.3+
 -- Charset: utf8mb4
 -- =============================================================================
@@ -9,12 +9,12 @@ SET FOREIGN_KEY_CHECKS = 0;
 
 -- -----------------------------------------------------------------------------
 -- rooms
--- Stores property rooms/units synced from the HotelSync catalog.
+-- Stores property rooms/units synced from the OTASync catalog.
 -- -----------------------------------------------------------------------------
 CREATE TABLE IF NOT EXISTS `rooms` (
     `id`          INT UNSIGNED    NOT NULL AUTO_INCREMENT,
     `external_id` VARCHAR(100)    NOT NULL COMMENT 'HS-{id}-{slug}',
-    `hs_room_id`  VARCHAR(100)    NOT NULL COMMENT 'ID returned by HotelSync API',
+    `hs_room_id`  VARCHAR(100)    NOT NULL COMMENT 'ID returned by OTASync API',
     `name`        VARCHAR(255)    NOT NULL,
     `slug`        VARCHAR(255)    NOT NULL,
     `raw_data`    JSON            DEFAULT NULL COMMENT 'Full API response payload',
@@ -27,12 +27,12 @@ CREATE TABLE IF NOT EXISTS `rooms` (
 
 -- -----------------------------------------------------------------------------
 -- rate_plans
--- Stores rate plans / pricing structures from the HotelSync catalog.
+-- Stores rate plans / pricing structures from the OTASync catalog.
 -- -----------------------------------------------------------------------------
 CREATE TABLE IF NOT EXISTS `rate_plans` (
     `id`              INT UNSIGNED    NOT NULL AUTO_INCREMENT,
     `external_id`     VARCHAR(100)    NOT NULL COMMENT 'RP-{id}-{meal_plan}',
-    `hs_rate_plan_id` VARCHAR(100)    NOT NULL COMMENT 'ID returned by HotelSync API',
+    `hs_rate_plan_id` VARCHAR(100)    NOT NULL COMMENT 'ID returned by OTASync API',
     `name`            VARCHAR(255)    NOT NULL,
     `meal_plan`       VARCHAR(50)     NOT NULL COMMENT 'BB | HB | FB | AI | RO',
     `raw_data`        JSON            DEFAULT NULL,

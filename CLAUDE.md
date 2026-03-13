@@ -1,7 +1,7 @@
-# HotelSync Integration – Project Brief
+# BridgeOne – Project Brief
 
 ## Project Overview
-Integration service between HotelSync API and local BridgeOne system.
+Integration service between OTASync API and local BridgeOne system.
 Built with PHP (procedural), MySQL, mysqli, cURL. No frameworks allowed.
 
 ## Tech Constraints

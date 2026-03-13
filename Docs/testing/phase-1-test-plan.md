@@ -80,7 +80,7 @@ ORDER BY id;
 **Expected result:**
 - At least one row exists
 - `external_id` values follow the format `HS-{id}-{slug}` (e.g. `HS-34152-double-room-with-sea-view`)
-- `hs_room_id` contains numeric string IDs from the HotelSync API
+- `hs_room_id` contains numeric string IDs from the OTASync API
 - `name` contains human-readable room names
 - `slug` is lowercase with hyphens, no special characters
 

@@ -3,7 +3,7 @@
 /**
  * config/config.php
  *
- * Central configuration file for HotelSync Integration.
+ * Central configuration file for BridgeOne.
  * All credentials and environment settings are defined here.
  * Never hardcode credentials anywhere else in the codebase.
  */
@@ -17,7 +17,7 @@ define('DB_PASS',   '');
 define('DB_NAME',   'hotelsync');
 define('DB_CHARSET','utf8mb4');
 
-// ─── HotelSync API ───────────────────────────────────────────────────────────
+// ─── OTASync API ─────────────────────────────────────────────────────────────
 // API_TOKEN   – partner/integration token issued by OTASync support
 // API_USERNAME / API_PASSWORD – your OTASync account login credentials
 // API_PROPERTY_ID – id_properties for your property (from login response)

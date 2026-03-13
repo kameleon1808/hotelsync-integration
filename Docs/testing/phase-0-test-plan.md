@@ -3,7 +3,7 @@
 **Tester level:** Non-technical (no PHP or MySQL knowledge required)
 **Estimated time:** 15–20 minutes
 **Goal:** Confirm that the development environment is correctly set up and the
-integration service can reach both the database and the HotelSync API.
+integration service can reach both the database and the OTASync API.
 
 ---
 

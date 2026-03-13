@@ -3,7 +3,7 @@
 **Tester level:** Non-technical (no PHP or MySQL knowledge required)
 **Estimated time:** 30–45 minutes
 **Goal:** Confirm that `sync_reservations.php` successfully fetches reservations
-from the HotelSync API within a date range, inserts new records into the local
+from the OTASync API within a date range, inserts new records into the local
 database, maps rooms and rate plans correctly, and skips duplicates on re-run.
 
 ---
@@ -147,7 +147,7 @@ ORDER BY id;
 - At least one row exists
 - `lock_id` follows the format `LOCK-{hs_reservation_id}-{YYYY-MM-DD}`
   (e.g. `LOCK-5001-2026-03-15`)
-- `hs_reservation_id` matches the ID returned by the HotelSync API
+- `hs_reservation_id` matches the ID returned by the OTASync API
 - `guest_name` is not empty (may show `Unknown Guest` if the API field was absent)
 - `arrival_date` and `departure_date` are valid dates
 - `status` is a non-empty string (e.g. `new`, `confirmed`, `cancelled`)

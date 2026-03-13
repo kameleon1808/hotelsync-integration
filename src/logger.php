@@ -20,7 +20,7 @@ if (!defined('LOG_FILE')) {
  * @param string      $type           Log level: INFO | SUCCESS | ERROR | WARNING.
  * @param string      $description    Human-readable description of the event.
  * @param int|null    $reservation_id Internal reservation ID (optional).
- * @param string|null $external_id    External / HotelSync ID (optional).
+ * @param string|null $external_id    External / OTASync ID (optional).
  *
  * @return void
  */

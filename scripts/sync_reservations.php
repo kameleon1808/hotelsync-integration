@@ -5,7 +5,7 @@
  *
  * Phase 2 – Reservation Import.
  *
- * Authenticates against the HotelSync API, fetches reservations within the
+ * Authenticates against the OTASync API, fetches reservations within the
  * specified arrival-date range, and inserts new records into the local database.
  * Reservations already present are skipped (full update logic is Phase 3).
  * Room and rate-plan associations are resolved against the local catalog tables.
@@ -92,7 +92,7 @@ if ($date_from > $date_to) {
 
 // ─── Boot ─────────────────────────────────────────────────────────────────────
 
-echo PHP_EOL . '=== HotelSync Reservation Sync ===' . PHP_EOL;
+echo PHP_EOL . '=== BridgeOne Reservation Sync ===' . PHP_EOL;
 echo "Date range: {$date_from} → {$date_to}" . PHP_EOL . PHP_EOL;
 log_event('INFO', "sync_reservations: Starting import for {$date_from} → {$date_to}");
 
@@ -125,7 +125,7 @@ echo 'Fetching reservations from API...' . PHP_EOL;
 log_event('INFO', 'sync_reservations: Fetching reservations from API');
 
 /**
- * Fetches all pages of reservations from the HotelSync API.
+ * Fetches all pages of reservations from the OTASync API.
  *
  * Handles two common pagination shapes:
  *   1. Flat array – returned as-is (no pagination).
